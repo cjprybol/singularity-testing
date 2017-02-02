@@ -50,31 +50,31 @@ chmod u+x analysis.img
 single="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=4G -pe shm 1 -l h_rt=48:00:00"
 multithread="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=$MEM -pe shm $THREADS -l h_rt=48:00:00"
 
-echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data" > $RUNDIR/job1
+echo "/usr/bin/time -a -o $TIME_LOG singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img bash $BASE/scripts/1.download_data.sh /scratch/data" > $RUNDIR/job1
 $single -N job1 $RUNDIR/job1
 
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/2.simulate_reads.sh /scratch/data" > $RUNDIR/job2
+echo "/usr/bin/time -a -o $TIME_LOG singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img bash $BASE/scripts/2.simulate_reads.sh /scratch/data" > $RUNDIR/job2
 $single -N job2 -hold_jid job1 $RUNDIR/job2
 
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data" > $RUNDIR/job3
+echo "/usr/bin/time -a -o $TIME_LOG singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data" > $RUNDIR/job3
 $single -N job3 -hold_jid job2 $RUNDIR/job3
 
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/4.quantify_transcripts.sh /scratch/data $THREADS" > $RUNDIR/job4
+echo "/usr/bin/time -a -o $TIME_LOG singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img bash $BASE/scripts/4.quantify_transcripts.sh /scratch/data $THREADS" > $RUNDIR/job4
 $multithread -N job4 -hold_jid job3 $RUNDIR/job4
 
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/5.bwa_index.sh /scratch/data" > $RUNDIR/job5
+echo "/usr/bin/time -a -o $TIME_LOG singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img bash $BASE/scripts/5.bwa_index.sh /scratch/data" > $RUNDIR/job5
 $single -N job5 -hold_jid job4 $RUNDIR/job5
 
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/6.bwa_align.sh /scratch/data $THREADS" > $RUNDIR/job6
+echo "/usr/bin/time -a -o $TIME_LOG singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img bash $BASE/scripts/6.bwa_align.sh /scratch/data $THREADS" > $RUNDIR/job6
 $multithread -N job6 -hold_jid job5 $RUNDIR/job6
 
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data" > $RUNDIR/job7
+echo "/usr/bin/time -a -o $TIME_LOG singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data" > $RUNDIR/job7
 $single -N job7 -hold_jid job6 $RUNDIR/job7
 
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS" > $RUNDIR/job8
+echo "/usr/bin/time -a -o $TIME_LOG singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS" > $RUNDIR/job8
 $multithread -N job8 -hold_jid job7 $RUNDIR/job8
 
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS" > $RUNDIR/job9
+echo "/usr/bin/time -a -o $TIME_LOG singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS" > $RUNDIR/job9
 $multithread -N job9 -hold_jid job8 $RUNDIR/job9
 
 echo "bash $RUNDIR/scripts/summarize_results.sh /scratch/data > $SCRATCH/logs/singularity-files.log" > $RUNDIR/job10
