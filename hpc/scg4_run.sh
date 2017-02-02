@@ -50,14 +50,14 @@ chmod u+x analysis.img
 single="qsub -S /bin/sh -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=4 -pe shm 1 -l h_rt=48:00:00"
 multithread="qsub -S /bin/sh -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=$MEM -pe shm $THREADS -l h_rt=48:00:00"
 
-$single -N job1 singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data
-$single -N job2 -hold_jid job1 singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/2.simulate_reads.sh /scratch/data
-$single -N job3 -hold_jid job2 singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data
-$multithread -N job4 -hold_jid job3 singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/4.quantify_transcripts.sh /scratch/data $THREADS
-$single -N job5 -hold_jid job4 singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/5.bwa_index.sh /scratch/data
-$multithread -N job6 -hold_jid job5 singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/6.bwa_align.sh /scratch/data $THREADS
-$single -N job7 -hold_jid job6 singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data
-$multithread -N job8 -hold_jid job7 singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS
-$multithread -N job9 -hold_jid job8 singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS
-$single -N job10 -hold_jid job9 bash $RUNDIR/scripts/summarize_results.sh /scratch/data > $SCRATCH/logs/singularity-files.log
-$single -N job11 -hold_jid job10 sed -i '/^$/d' $SCRATCH/logs/singularity-files.log
+$single -N job1 -- singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data
+$single -N job2 -hold_jid job1 -- singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/2.simulate_reads.sh /scratch/data
+$single -N job3 -hold_jid job2 -- singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data
+$multithread -N job4 -hold_jid job3 -- singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/4.quantify_transcripts.sh /scratch/data $THREADS
+$single -N job5 -hold_jid job4 -- singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/5.bwa_index.sh /scratch/data
+$multithread -N job6 -hold_jid job5 -- singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/6.bwa_align.sh /scratch/data $THREADS
+$single -N job7 -hold_jid job6 -- singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data
+$multithread -N job8 -hold_jid job7 -- singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS
+$multithread -N job9 -hold_jid job8 -- singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS
+$single -N job10 -hold_jid job9 -- bash $RUNDIR/scripts/summarize_results.sh /scratch/data > $SCRATCH/logs/singularity-files.log
+$single -N job11 -hold_jid job10 -- sed -i '/^$/d' $SCRATCH/logs/singularity-files.log
