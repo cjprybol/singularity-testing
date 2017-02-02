@@ -25,8 +25,7 @@ THREADS=16
 MEM=64G
 
 # We have to specify out output directory on scratch
-# Defined the following in ~/.bashrc
-# SCRATCH=/srv/gsfs0/scratch/cjprybol
+SCRATCH=/srv/gsfs0/scratch/cjprybol
 mkdir $SCRATCH/data
 
 # This will be our output/data directory
