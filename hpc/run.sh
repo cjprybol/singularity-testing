@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This is a very simple running script to execute a single container workflow.
+# This is a running script to execute a single container workflow.
 # It will install Singularity, pull a container, and use it to run a series of scripts. 
 # It was developed to run on an HPC SLURM cluster, sherlock.stanford.edu at Stanford
 
