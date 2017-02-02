@@ -10,16 +10,23 @@
 
 # This is the Github repo with analysis
 cd $HOME
-git clone https://www.github.com/vsoch/singularity-scientific-example
-cd singularity-scientific-example
+# git clone https://www.github.com/vsoch/singularity-scientific-example
+# cd singularity-scientific-example
+git clone git@github.com:cjprybol/singularity-testing.git
+cd singularity-testing
 export BASE=$PWD
 export RUNDIR=$BASE/hpc
 
+# for scg4 at stanford
+module load singularity/jan2017master
+
 # Analysis parameters
-THREADS=8
-MEM=32g
+THREADS=16
+MEM=64G
 
 # We have to specify out output directory on scratch
+# Defined the following in ~/.bashrc
+# SCRATCH=/srv/gsfs0/scratch/cjprybol
 mkdir $SCRATCH/data
 
 # This will be our output/data directory
@@ -41,37 +48,28 @@ image=$(ls *.img)
 mv $image analysis.img
 chmod u+x analysis.img
 
-# for scg4 at stanford
-#module load singularity/jan2017master
+single=$(qsub -S /bin/sh -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=4 -pe shm 1 -l h_rt=48:00:00)
+multithread=$(qsub -S /bin/sh -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=$MEM -pe shm $THREADS -l h_rt=48:00:00)
 
-cat << EOF > $RUNDIR/run.job
-#!/bin/bash
-#SBATCH --partition ibiis,owners
-#SBATCH --mem 64G
-#SBATCH --time 2-00:00:00
-#SBATCH --export ALL
-#SBATCH --mail-type BEGIN,END,FAIL
-#SBATCH --mail-user vsochat@stanford.edu
-#SBATCH --output=$HOME/singularity-hpc.out
-#SBATCH --error=$HOME/singularity-hpc.err
-module load singularity
-export NUMCORES=$(nproc)
-export MEM="$MEM"
-export THREADS="$THREADS"
-export TIME='%C\t%E\t%K\t%I\t%M\t%O\t%P\t%U\t%W\t%X\t%e\t%k\t%p\t%r\t%s\t%t\t%w\n'
-export TIME_LOG=$SCRATCH/logs/stats.log
-EOF
-
-echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/2.simulate_reads.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/4.quantify_transcripts.sh /scratch/data $NUMCORES" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/5.bwa_index.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/6.bwa_align.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS" >> $RUNDIR/run.job
-echo "bash $RUNDIR/scripts/summarize_results.sh /scratch/data > $SCRATCH/logs/singularity-files.log" >> $RUNDIR/run.job
-echo "sed -i '/^$/d' $SCRATCH/logs/singularity-files.log" >> $RUNDIR/run.job
-
-qsub $RUNDIR/run.job
+one=$($single singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data)
+echo $one
+two=$($single -W depend=afterok:$one singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/2.simulate_reads.sh /scratch/data)
+echo $two
+three=$($single -W depend=afterok:$two singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data)
+echo $three
+four=$($multithread -W depend=afterok:$three singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/4.quantify_transcripts.sh /scratch/data $THREADS)
+echo $four
+five=$($single -W depend=afterok:$four singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/5.bwa_index.sh /scratch/data)
+echo $five
+six=$($multithread -W depend=afterok:$five singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/6.bwa_align.sh /scratch/data $THREADS)
+echo $six
+seven=$($single -W depend=afterok:$six singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data)
+echo $seven
+eight=$($multithread -W depend=afterok:$seven singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS)
+echo $eight
+nine=$($multithread -W depend=afterok:$eight singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS)
+echo $nine
+ten=$($single -W depend=afterok:$nine bash $RUNDIR/scripts/summarize_results.sh /scratch/data > $SCRATCH/logs/singularity-files.log)
+echo $ten
+eleven=$($single -W depend=afterok:$ten sed -i '/^$/d' $SCRATCH/logs/singularity-files.log)
+echo $eleven
