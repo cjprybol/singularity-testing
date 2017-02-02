@@ -50,8 +50,6 @@ chmod u+x analysis.img
 single=$(qsub -S /bin/sh -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=4 -pe shm 1 -l h_rt=48:00:00)
 multithread=$(qsub -S /bin/sh -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=$MEM -pe shm $THREADS -l h_rt=48:00:00)
 
-singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data" >> $RUNDIR/run.job
-
 echo "one=$($single singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data)" >> $RUNDIR/run.job
 echo "echo $one" >> $RUNDIR/run.job
 echo "two=$($single -W depend=afterok:$one singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/2.simulate_reads.sh /scratch/data)" >> $RUNDIR/run.job
