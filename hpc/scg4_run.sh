@@ -47,7 +47,7 @@ image=$(ls *.img)
 mv $image analysis.img
 chmod u+x analysis.img
 
-single="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=4 -pe shm 1 -l h_rt=48:00:00"
+single="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=4G -pe shm 1 -l h_rt=48:00:00"
 multithread="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=$MEM -pe shm $THREADS -l h_rt=48:00:00"
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data" > $RUNDIR/job1
