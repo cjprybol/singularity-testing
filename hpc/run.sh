@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This is a running script to execute a single container workflow.
+# This is a very simple running script to execute a single container workflow.
 # It will install Singularity, pull a container, and use it to run a series of scripts. 
 # It was developed to run on an HPC SLURM cluster, sherlock.stanford.edu at Stanford
 
@@ -61,18 +61,6 @@ export TIME='%C\t%E\t%K\t%I\t%M\t%O\t%P\t%U\t%W\t%X\t%e\t%k\t%p\t%r\t%s\t%t\t%w\
 export TIME_LOG=$SCRATCH/logs/stats.log
 EOF
 
-<<<<<<< HEAD
-echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/2.simulate_reads.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/4.quantify_transcripts.sh /scratch/data $NUMCORES" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/5.bwa_index.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/6.bwa_align.sh /scratch/data $THREADS" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS" >> $RUNDIR/run.job
-echo "singularity exec -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS" >> $RUNDIR/run.job
-echo "bash $RUNDIR/scripts/summarize_results.sh /scratch/data > $SCRATCH/logs/singularity-files.log" >> $RUNDIR/run.job
-=======
 echo "singularity exec -B $SCRATCH:/scratch -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/1.download_data.sh /scratch/data" >> $RUNDIR/run.job
 echo "singularity exec -B $SCRATCH:/scratch -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/2.simulate_reads.sh /scratch/data" >> $RUNDIR/run.job
 echo "singularity exec -B $SCRATCH:/scratch -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data" >> $RUNDIR/run.job
@@ -83,8 +71,8 @@ echo "singularity exec -B $SCRATCH:/scratch -B $SCRATCH/data:/scratch/data $SCRA
 echo "singularity exec -B $SCRATCH:/scratch -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS" >> $RUNDIR/run.job
 echo "singularity exec -B $SCRATCH:/scratch -B $SCRATCH/data:/scratch/data $SCRATCH/data/analysis.img /usr/bin/time -a -o $TIME_LOG bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS" >> $RUNDIR/run.job
 echo "bash $BASE/scripts/summarize_results.sh $SCRATCH/data > $SCRATCH/logs/singularity-files.log" >> $RUNDIR/run.job
->>>>>>> ecdeb060ef92446f08f7847e2f594a3d2a6eb926
 echo "sed -i '/^$/d' $SCRATCH/logs/singularity-files.log" >> $RUNDIR/run.job
 echo "sed -i '/^$/d' $SCRATCH/logs/stats.log" >> $RUNDIR/run.job
 
 qsub $RUNDIR/run.job
+
