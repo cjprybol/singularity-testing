@@ -82,3 +82,6 @@ $single -N job10 -hold_jid job9 $RUNDIR/job10
 
 echo "sed -i '/^$/d' $SCRATCH/logs/singularity-files.log" > $RUNDIR/job11
 $single -N job11 -hold_jid job10 $RUNDIR/job11
+
+echo "sed -i '/^$/d' $SCRATCH/logs/stats.log" > $RUNDIR/job12
+$single -N job12 -hold_jid job11 $RUNDIR/job12
