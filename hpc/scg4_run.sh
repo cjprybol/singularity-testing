@@ -22,7 +22,7 @@ module load singularity/jan2017master
 
 # Analysis parameters
 THREADS=16
-MEM=64G
+MEM=64
 MEM_PER_THREAD=$(python -c "print(int($MEM/$THREADS))")
 
 # We have to specify out output directory on scratch
