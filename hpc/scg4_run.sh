@@ -36,7 +36,6 @@ export WORKDIR=$SCRATCH/data
 mkdir $SCRATCH/logs
 
 # Setup of time and recording of other analysis data (see TIME.md)
-# Setup of time and recording of other analysis data (see TIME.md)
 export TIME_LOG=$SCRATCH/logs/stats.log
 export TIME='%C\t%E\t%K\t%I\t%M\t%O\t%P\t%U\t%W\t%X\t%e\t%k\t%p\t%r\t%s\t%t\t%w\n'
 echo -e 'COMMAND\tELAPSED_TIME_HMS\tAVERAGE_MEM\tFS_INPUTS\tMAX_RES_SIZE_KB\tFS_OUTPUTS\tPERC_CPU_ALLOCATED\tCPU_SECONDS_USED\tW_TIMES_SWAPPED\tSHARED_TEXT_KB\tELAPSED_TIME_SECONDS\tNUMBER_SIGNALS_DELIVERED\tAVG_UNSHARED_STACK_SIZE\tSOCKET_MSG_RECEIVED\tSOCKET_MSG_SENT\tAVG_RESIDENT_SET_SIZE\tCONTEXT_SWITCHES' > $TIME_LOG
@@ -49,7 +48,7 @@ mv $image analysis.img
 chmod u+x analysis.img
 
 single="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=4G -pe shm 1"
-multithread="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=$MEM_PER_THREAD -pe shm $THREADS"
+multithread="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=$MEM_PER_THREAD"G" -pe shm $THREADS"
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/1.download_data.sh /scratch/data" > $RUNDIR/job1
 $single -N job1 $RUNDIR/job1
