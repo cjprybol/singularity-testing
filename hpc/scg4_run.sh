@@ -22,8 +22,7 @@ module load singularity/jan2017master
 
 # Analysis parameters
 THREADS=16
-MEM=64
-MEM_PER_THREAD=$(python -c "print(int($MEM/$THREADS))")
+MEM=64G
 
 # We have to specify out output directory on scratch
 SCRATCH=/srv/gsfs0/scratch/cjprybol
@@ -47,8 +46,10 @@ image=$(ls *.img)
 mv $image analysis.img
 chmod u+x analysis.img
 
-single="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=4G -pe shm 1"
-multithread="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=$MEM_PER_THREAD"G" -pe shm $THREADS"
+# -l h_vmem=4G -pe shm 1
+single="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu"
+double="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -pe shm 2"
+multithread="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -pe shm $THREADS"
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/1.download_data.sh /scratch/data" > $RUNDIR/job1
 $single -N job1 $RUNDIR/job1
@@ -57,19 +58,19 @@ echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/
 $single -N job2 -hold_jid job1 $RUNDIR/job2
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data" > $RUNDIR/job3
-$single -N job3 -hold_jid job2 $RUNDIR/job3
+$double -N job3 -hold_jid job2 $RUNDIR/job3
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/4.quantify_transcripts.sh /scratch/data $THREADS" > $RUNDIR/job4
 $multithread -N job4 -hold_jid job3 $RUNDIR/job4
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/5.bwa_index.sh /scratch/data" > $RUNDIR/job5
-$single -N job5 -hold_jid job4 $RUNDIR/job5
+$double -N job5 -hold_jid job4 $RUNDIR/job5
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/6.bwa_align.sh /scratch/data $THREADS" > $RUNDIR/job6
 $multithread -N job6 -hold_jid job5 $RUNDIR/job6
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data" > $RUNDIR/job7
-$single -N job7 -hold_jid job6 $RUNDIR/job7
+$double -N job7 -hold_jid job6 $RUNDIR/job7
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS" > $RUNDIR/job8
 $multithread -N job8 -hold_jid job7 $RUNDIR/job8
@@ -77,7 +78,7 @@ $multithread -N job8 -hold_jid job7 $RUNDIR/job8
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS" > $RUNDIR/job9
 $multithread -N job9 -hold_jid job8 $RUNDIR/job9
 
-echo "bash $RUNDIR/scripts/summarize_results.sh /scratch/data > $SCRATCH/logs/singularity-files.log" > $RUNDIR/job10
+echo "bash $BASE/scripts/summarize_results.sh /scratch/data > $SCRATCH/logs/singularity-files.log" > $RUNDIR/job10
 $single -N job10 -hold_jid job9 $RUNDIR/job10
 
 echo "sed -i '/^$/d' $SCRATCH/logs/singularity-files.log" > $RUNDIR/job11
