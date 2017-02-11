@@ -55,7 +55,7 @@ echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/
 $single -N job1 $RUNDIR/job1
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/2.simulate_reads.sh /scratch/data" > $RUNDIR/job2
-$single -N job2 -hold_jid job1 $RUNDIR/job2
+$double -N job2 -hold_jid job1 $RUNDIR/job2
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data" > $RUNDIR/job3
 $double -N job3 -hold_jid job2 $RUNDIR/job3
