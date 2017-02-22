@@ -9,20 +9,22 @@
 #########################################################################################
 
 # This is the Github repo with analysis
-cd $HOME
+# cd $HOME
 # git clone https://www.github.com/vsoch/singularity-scientific-example
 # cd singularity-scientific-example
-git clone git@github.com:cjprybol/singularity-testing.git
-cd singularity-testing
-export BASE=$PWD
+# git clone git@github.com:cjprybol/singularity-testing.git
+# cd singularity-testing
+# export BASE=$PWD
+export BASE=$HOME/singularity-testing
 export RUNDIR=$BASE/hpc
 
 # for scg4 at stanford
 module load singularity/jan2017master
 
 # Analysis parameters
-THREADS=16
-MEM=64G
+THREADS=8
+MEM=32G
+RTG_THREADS=16
 
 # We have to specify out output directory on scratch
 SCRATCH=/srv/gsfs0/scratch/cjprybol
@@ -46,37 +48,36 @@ image=$(ls *.img)
 mv $image analysis.img
 chmod u+x analysis.img
 
-# -l h_vmem=4G -pe shm 1
-base="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu"
+base="qsub -S /bin/bash -j y -R y -V -w e -m bea -M cjprybol@stanford.edu -l h_vmem=4G"
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/1.download_data.sh /scratch/data" > $RUNDIR/job1
 $base -N job1 $RUNDIR/job1
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/2.simulate_reads.sh /scratch/data" > $RUNDIR/job2
-$base -pe shm 2 -N job2 -hold_jid job1 $RUNDIR/job2
+$base -pe shm $THREADS -N job2 -hold_jid job1 $RUNDIR/job2
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/3.generate_transcriptome_index.sh /scratch/data" > $RUNDIR/job3
-$base -pe shm 4 -N job3 -hold_jid job2 $RUNDIR/job3
+$base -pe shm $THREADS -N job3 -hold_jid job2 $RUNDIR/job3
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/4.quantify_transcripts.sh /scratch/data $THREADS" > $RUNDIR/job4
 $base -pe shm $THREADS -N job4 -hold_jid job3 $RUNDIR/job4
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/5.bwa_index.sh /scratch/data" > $RUNDIR/job5
-$base -pe shm 2 -N job5 -hold_jid job4 $RUNDIR/job5
+$base -pe shm $THREADS -N job5 -hold_jid job4 $RUNDIR/job5
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/6.bwa_align.sh /scratch/data $THREADS" > $RUNDIR/job6
 $base -pe shm $THREADS -N job6 -hold_jid job5 $RUNDIR/job6
 
-echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data" > $RUNDIR/job7
-$base -pe shm 4 -N job7 -hold_jid job6 $RUNDIR/job7
+echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/7.prepare_rtg_run.sh /scratch/data $MEM" > $RUNDIR/job7
+$base -pe shm $RTG_THREADS -N job7 -hold_jid job6 $RUNDIR/job7
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/8.map_trio.sh /scratch/data $MEM $THREADS" > $RUNDIR/job8
-$base -pe shm $THREADS -N job8 -hold_jid job7 $RUNDIR/job8
+$base -pe shm $RTG_THREADS -N job8 -hold_jid job7 $RUNDIR/job8
 
 echo "singularity exec -B $SCRATCH:/scratch $SCRATCH/data/analysis.img /usr/bin/time -a -o /scratch/logs/stats.log bash $BASE/scripts/9.family_call_variants.sh /scratch/data $MEM $THREADS" > $RUNDIR/job9
-$base -pe shm $THREADS -N job9 -hold_jid job8 $RUNDIR/job9
+$base -pe shm $RTG_THREADS -N job9 -hold_jid job8 $RUNDIR/job9
 
-echo "bash $BASE/scripts/summarize_results.sh /scratch/data > $SCRATCH/logs/singularity-files.log" > $RUNDIR/job10
+echo "bash $BASE/scripts/summarize_results.sh $SCRATCH/data > $SCRATCH/logs/singularity-files.log" > $RUNDIR/job10
 $base -N job10 -hold_jid job9 $RUNDIR/job10
 
 echo "sed -i '/^$/d' $SCRATCH/logs/singularity-files.log" > $RUNDIR/job11

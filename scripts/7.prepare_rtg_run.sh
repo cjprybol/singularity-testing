@@ -7,6 +7,7 @@ if [ $# -eq 0 ]; then
 fi
 
 DATADIR=$1
+MEM=$2
 
 if [ ! -d $DATADIR ]; then
     echo "$DATADIR does not exist! Exiting."
@@ -15,4 +16,4 @@ fi
 
 REFERENCE=$DATADIR/Reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa
 
-rtg format --format fasta --output=$REFERENCE.sdf $REFERENCE
+rtg RTG_MEM=$MEM format --format fasta --output=$REFERENCE.sdf $REFERENCE

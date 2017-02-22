@@ -29,5 +29,6 @@ READ_LEN=150
 GENOME_SIZE=3400000000
 FOLD_COVERAGE=$(python -c "print($READS*$READ_LEN/$GENOME_SIZE)")
 
-art_illumina --rndSeed 1 --in $GENOME --paired --len 75 --fcov $FOLD_COVERAGE --seqSys HS25 --mflen 500 --sdev 20 --noALN --out $OUT_DIR/dna_ && gzip $OUT_DIR/dna_1.fq && gzip $OUT_DIR/dna_2.fq
-
+art_illumina --rndSeed 1 --in $GENOME --paired --len 75 --fcov $FOLD_COVERAGE --seqSys HS25 --mflen 500 --sdev 20 --noALN --out $OUT_DIR/dna_
+gzip -f $OUT_DIR/dna_1.fq
+gzip -f $OUT_DIR/dna_2.fq
