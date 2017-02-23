@@ -8,3 +8,12 @@ bash /home/cjprybol/singularity-testing/scripts/6.bwa_align.sh /scratch/data 8	2
 bash /home/cjprybol/singularity-testing/scripts/7.prepare_rtg_run.sh /scratch/data 32G	1:30.64	0	62192	952956	240	86%	74.09	0	0	90.64	0	0	0	0	0	22794
 bash /home/cjprybol/singularity-testing/scripts/8.map_trio.sh /scratch/data 32G 8	1:27:14	0	84808	29711556	130712	703%	36530.28	0	0	5234.64	0	0	0	0	0	26858201
 bash /home/cjprybol/singularity-testing/scripts/9.family_call_variants.sh /scratch/data 32G 8	1:01:42	0	74384	19240888	4968	613%	22546.43	0	0	3702.46	0	0	0	0	0	16038664
+bash /home/cjprybol/singularity-testing/scripts/1.download_data.sh /scratch/data	1:06:17	0	13656	3280	0	72%	2534.65	0	0	3977.51	0	0	0	0	0	1729510
+bash /home/cjprybol/singularity-testing/scripts/2.simulate_reads.sh /scratch/data	3:28:33	0	26040	2069964	0	98%	7220.04	0	0	12513.42	0	0	0	0	0	4132249
+bash /home/cjprybol/singularity-testing/scripts/3.generate_transcriptome_index.sh /scratch/data	55:11.53	0	9120	5130328	0	99%	3284.67	0	0	3311.53	0	0	0	0	0	11071
+bash /home/cjprybol/singularity-testing/scripts/4.quantify_transcripts.sh /scratch/data 8	1:04:53	0	10040	4614248	0	742%	28597.72	0	0	3893.50	0	0	0	0	0	600312
+bash /home/cjprybol/singularity-testing/scripts/5.bwa_index.sh /scratch/data	1:56:09	0	5304	4545552	0	97%	6746.84	0	0	6969.48	0	0	0	0	0	47306
+bash /home/cjprybol/singularity-testing/scripts/6.bwa_align.sh /scratch/data 8	3:59:42	0	9816	9526816	0	648%	81146.86	0	0	14382.49	0	0	0	0	0	17512890
+bash /home/cjprybol/singularity-testing/scripts/7.prepare_rtg_run.sh /scratch/data 32G	2:17.71	0	62192	898840	304	82%	107.81	0	0	137.71	0	0	0	0	0	27381
+bash /home/cjprybol/singularity-testing/scripts/8.map_trio.sh /scratch/data 32G 8	1:59:39	0	84808	30726084	177976	692%	49373.01	0	0	7179.46	0	0	0	0	0	27010629
+bash /home/cjprybol/singularity-testing/scripts/9.family_call_variants.sh /scratch/data 32G 8	2:22:33	0	74384	17050656	10328	420%	35662.67	0	0	8553.46	0	0	0	0	0	22303899
