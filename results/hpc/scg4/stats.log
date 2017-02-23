@@ -1,0 +1,10 @@
+COMMAND	ELAPSED_TIME_HMS	AVERAGE_MEM	FS_INPUTS	MAX_RES_SIZE_KB	FS_OUTPUTS	PERC_CPU_ALLOCATED	CPU_SECONDS_USED	W_TIMES_SWAPPED	SHARED_TEXT_KB	ELAPSED_TIME_SECONDS	NUMBER_SIGNALS_DELIVERED	AVG_UNSHARED_STACK_SIZE	SOCKET_MSG_RECEIVED	SOCKET_MSG_SENT	AVG_RESIDENT_SET_SIZE	CONTEXT_SWITCHES
+bash /home/cjprybol/singularity-testing/scripts/1.download_data.sh /scratch/data	2:02:18	0	13656	3272	0	39%	2622.68	0	0	7338.89	0	0	0	0	0	2112736
+bash /home/cjprybol/singularity-testing/scripts/2.simulate_reads.sh /scratch/data	2:24:40	0	26040	2069952	0	98%	6775.11	0	0	8680.66	0	0	0	0	0	437037
+bash /home/cjprybol/singularity-testing/scripts/3.generate_transcriptome_index.sh /scratch/data	10:42.98	0	9120	5130336	0	98%	626.23	0	0	642.98	0	0	0	0	0	18685
+bash /home/cjprybol/singularity-testing/scripts/4.quantify_transcripts.sh /scratch/data 8	38:37.55	0	10040	4618476	0	736%	16834.11	0	0	2317.55	0	0	0	0	0	627171
+bash /home/cjprybol/singularity-testing/scripts/5.bwa_index.sh /scratch/data	1:32:21	0	5304	4545552	0	95%	5274.02	0	0	5541.58	0	0	0	0	0	54288
+bash /home/cjprybol/singularity-testing/scripts/6.bwa_align.sh /scratch/data 8	2:52:05	0	9736	9082808	0	827%	84975.34	0	0	10325.62	0	0	0	0	0	18992772
+bash /home/cjprybol/singularity-testing/scripts/7.prepare_rtg_run.sh /scratch/data 32G	1:30.64	0	62192	952956	240	86%	74.09	0	0	90.64	0	0	0	0	0	22794
+bash /home/cjprybol/singularity-testing/scripts/8.map_trio.sh /scratch/data 32G 8	1:27:14	0	84808	29711556	130712	703%	36530.28	0	0	5234.64	0	0	0	0	0	26858201
+bash /home/cjprybol/singularity-testing/scripts/9.family_call_variants.sh /scratch/data 32G 8	1:01:42	0	74384	19240888	4968	613%	22546.43	0	0	3702.46	0	0	0	0	0	16038664
