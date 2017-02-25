@@ -9,13 +9,13 @@
 #########################################################################################
 
 # This is the Github repo with analysis
-# cd $HOME
-# git clone https://www.github.com/vsoch/singularity-scientific-example
-# cd singularity-scientific-example
-# git clone git@github.com:cjprybol/singularity-testing.git
-# cd singularity-testing
-# export BASE=$PWD
-export BASE=$HOME/singularity-testing
+cd $HOME
+git clone https://www.github.com/vsoch/singularity-scientific-example
+cd singularity-scientific-example
+git clone git@github.com:cjprybol/singularity-testing.git
+cd singularity-testing
+export BASE=$PWD
+# export BASE=$HOME/singularity-testing
 export RUNDIR=$BASE/hpc
 
 # for scg4 at stanford
